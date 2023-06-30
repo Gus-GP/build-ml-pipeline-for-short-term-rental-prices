@@ -23,6 +23,15 @@ _steps = [
 # This automatically reads in the configuration
 @hydra.main(config_name='config')
 def go(config: DictConfig):
+    """
+    Main script for the ML pipeline. Controls the flow of the pipeline according to
+    the user's arguments
+
+    Arguments:
+        args (argparse): contains the information for the arguments defined in MLproject
+    Return:
+        Nothing
+    """
 
     # Setup the wandb experiment. All runs will be grouped under this name
     os.environ["WANDB_PROJECT"] = config["main"]["project_name"]
@@ -57,7 +66,7 @@ def go(config: DictConfig):
                     "input_artifact": "sample.csv:latest",
                     "output_artifact": "clean_sample.csv",
                     "output_type": "clean_sample",
-                    "output_description": "Data with outliers and null values removed",
+                    "output_description": "Removes outliers, unwanted geolocated data, and modifies date types",
                     "min_price": config['etl']['min_price'],
                     "max_price": config['etl']['max_price']
                 },

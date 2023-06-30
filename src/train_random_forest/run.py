@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 """
 This script trains a Random Forest
+
+Author: Udacity
+Modified by: Gustavo Grinsteins
+Modified Date: 06/30/2023
 """
 import argparse
 import logging
@@ -40,6 +44,7 @@ logger = logging.getLogger()
 
 def go(args):
 
+    logger.info(f"Initializing W&B run")
     run = wandb.init(job_type="train_random_forest")
     run.config.update(args)
 
@@ -54,20 +59,21 @@ def go(args):
     ######################################
     # Use run.use_artifact(...).file() to get the train and validation artifact (args.trainval_artifact)
     # and save the returned path in train_local_pat
-    trainval_local_path = run.use_artifact(args.trainval_artifact).file()
     ######################################
+    logger.info(f"Retrieve train and validation data artifact from W&B")
+    trainval_local_path = run.use_artifact(args.trainval_artifact).file()
 
     X = pd.read_csv(trainval_local_path)
     y = X.pop("price")  # this removes the column "price" from X and puts it into y
 
     logger.info(f"Minimum price: {y.min()}, Maximum price: {y.max()}")
 
+    logger.info(f"Splitting data into train and test")
     X_train, X_val, y_train, y_val = train_test_split(
         X, y, test_size=args.val_size, stratify=X[args.stratify_by], random_state=args.random_seed
     )
 
     logger.info("Preparing sklearn pipeline")
-
     sk_pipe, processed_features = get_inference_pipeline(rf_config, args.max_tfidf_features)
 
     # Then fit it to the X_train, y_train data
@@ -77,6 +83,7 @@ def go(args):
     # Fit the pipeline sk_pipe by calling the .fit method on X_train and y_train
     # YOUR CODE HERE
     ######################################
+    logger.info(f"Fitting using SK pipeline")
     sk_pipe.fit(X_train, y_train)
 
     # Compute r2 and MAE
@@ -100,6 +107,7 @@ def go(args):
     # HINT: use mlflow.sklearn.save_model
     # YOUR CODE HERE
     ######################################
+    logger.info(f"Saving the fitted model using sklearn API")
     mlflow.sklearn.save_model(sk_pipe,"random_forest_dir")
 
     ######################################
@@ -110,6 +118,7 @@ def go(args):
     # run.log_artifact to log the artifact to the run
     # YOUR CODE HERE
     ######################################
+    logger.info(f"Save the model into W&B as an artifact")
     artifact = wandb.Artifact(
         args.output_artifact,
         type="model_export",
@@ -123,6 +132,7 @@ def go(args):
     # Plot feature importance
     fig_feat_imp = plot_feature_importance(sk_pipe, processed_features)
 
+    logger.info(f"Getting performance metrics")
     ######################################
     # Here we save r_squared under the "r2" key
     run.summary['r2'] = r_squared
@@ -170,11 +180,11 @@ def get_inference_pipeline(rf_config, max_tfidf_features):
     # Build a pipeline with two steps:
     # 1 - A SimpleImputer(strategy="most_frequent") to impute missing values
     # 2 - A OneHotEncoder() step to encode the variable
+    ######################################
     non_ordinal_categorical_preproc = make_pipeline(
         SimpleImputer(strategy="most_frequent"),
         OneHotEncoder()
     )
-    ######################################
 
     # Let's impute the numerical columns to make sure we can handle missing values
     # (note that we do not scale because the RF algorithm does not need that)
@@ -232,6 +242,7 @@ def get_inference_pipeline(rf_config, max_tfidf_features):
     # ColumnTransformer instance that we saved in the `preprocessor` variable, and a step called "random_forest"
     # with the random forest instance that we just saved in the `random_forest` variable.
     # HINT: Use the explicit Pipeline constructor so you can assign the names to the steps, do not use make_pipeline
+    ######################################
     sk_pipe = Pipeline(
         steps=[
             ("preprocessor", preprocessor),

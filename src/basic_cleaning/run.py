@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 """
 Download from W&B the raw dataset and apply some basic data cleaning, exporting the result to a new artifact
+
+Author: Udacity
+Modified by: Gustavo Grinsteins
+Modified Date: 06/30/2023
 """
 import argparse
 import logging
@@ -13,6 +17,14 @@ logger = logging.getLogger()
 
 
 def go(args):
+    """
+    Basic cleaning procedure for the ML pipeline
+
+    Arguments:
+        args (argparse): contains the information for the arguments defined in MLproject
+    Return:
+        Nothing
+    """
 
     run = wandb.init(job_type="basic_cleaning")
     run.config.update(args)
@@ -58,6 +70,14 @@ def go(args):
 
 
 if __name__ == "__main__":
+    """
+    Entry point for thr Basic Cleaning pipeline step
+
+    Arguments:
+        None
+    Return:
+        Nothing
+    """
 
     parser = argparse.ArgumentParser(description="A very basic data cleaning")
 

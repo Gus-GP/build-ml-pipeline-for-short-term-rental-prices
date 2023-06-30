@@ -6,27 +6,27 @@ entry_points:
     parameters:
 
       input_artifact:
-        description: ## ADD DESCRIPTION
+        description: W&B Input Artifact Name
         type: string
 
       output_artifact:
-        description: ## ADD DESCRIPTION
+        description: W&B Output Artifact Name
         type: string
 
       output_type:
-        description: ## ADD DESCRIPTION
+        description: Type of the output artifact for W&B classification
         type: string
 
       output_description:
-        description: ## ADD DESCRIPTION
+        description: Description of the output artifact
         type: string
 
       min_price:
-        description: ## ADD DESCRIPTION
+        description: Chosen minimum price
         type: string
 
       max_price:
-        description: ## ADD DESCRIPTION
+        description: Chosen maximum price
         type: string
 
 
